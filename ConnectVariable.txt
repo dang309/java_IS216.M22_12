@@ -1,0 +1,4 @@
+localhost
+fastfoodmanagement
+root
+TerMiNaTor_309
