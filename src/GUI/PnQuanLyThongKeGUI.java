@@ -10,6 +10,8 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 
+import Report.ReportViewer;
+
 import javax.swing.*;
 
 import java.awt.*;
@@ -18,8 +20,13 @@ import static Main.Main.changLNF;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import net.sf.jasperreports.engine.JRException;
 
 public class PnQuanLyThongKeGUI extends JPanel {
 
@@ -72,7 +79,7 @@ public class PnQuanLyThongKeGUI extends JPanel {
         lblBackgroundNhanVien.setBounds(98, 340, 369, 201);
         lblBackgroundDoanhThu.setBounds(563, 340, 369, 201);
 
-        btnView.setToolTipText("Xem chi tiết");
+        btnView.setToolTipText("Báo cáo");
         btnView.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
         lblThongKeThucDon = new JLabel("55", JLabel.CENTER);
@@ -170,107 +177,37 @@ public class PnQuanLyThongKeGUI extends JPanel {
         btnBack.setToolTipText("Quay lại");
         btnBack.setBounds(10, 10, 45, 45);
         pnThongKeChiTiet.add(btnBack);
-
-        JLabel lblBackGroundBangChiTiet = new JLabel(new ImageIcon("image/ManagerUI/bangChiTiet.png"));
-        lblBackGroundBangChiTiet.setBounds(172, 10, 686, 363);
-        pnThongKeChiTiet.add(lblBackGroundBangChiTiet);
-
-        lblMon1 = new JLabel("0");
-        lblMon2 = new JLabel("0");
-        lblMon3 = new JLabel("0");
-        lblMon4 = new JLabel("0");
-        lblMon5 = new JLabel("0");
-        lblSoLuong1 = new JLabel("0", JLabel.CENTER);
-        lblSoLuong2 = new JLabel("0", JLabel.CENTER);
-        lblSoLuong3 = new JLabel("0", JLabel.CENTER);
-        lblSoLuong4 = new JLabel("0", JLabel.CENTER);
-        lblSoLuong5 = new JLabel("0", JLabel.CENTER);
-
-        x = 236;
-        y = 123;
-        lblMon1.setBounds(x, y, 493, 50);
-        lblMon2.setBounds(x, y += 50, 493, 50);
-        lblMon3.setBounds(x, y += 50, 493, 50);
-        lblMon4.setBounds(x, y += 50, 493, 50);
-        lblMon5.setBounds(x, y += 50, 493, 50);
-        x = 729;
-        y = 123;
-        lblSoLuong1.setBounds(x, y, 128, 50);
-        lblSoLuong2.setBounds(x, y += 50, 128, 50);
-        lblSoLuong3.setBounds(x, y += 50, 128, 50);
-        lblSoLuong4.setBounds(x, y += 50, 128, 50);
-        lblSoLuong5.setBounds(x, y += 50, 128, 50);
-
-        lblMon1.setForeground(Color.BLACK);
-        lblMon2.setForeground(Color.BLACK);
-        lblMon3.setForeground(Color.BLACK);
-        lblMon4.setForeground(Color.BLACK);
-        lblMon5.setForeground(Color.BLACK);
-        lblSoLuong1.setForeground(Color.BLACK);
-        lblSoLuong2.setForeground(Color.BLACK);
-        lblSoLuong3.setForeground(Color.BLACK);
-        lblSoLuong4.setForeground(Color.BLACK);
-        lblSoLuong5.setForeground(Color.BLACK);
-
-        Font fontChiTiet = new Font("Tahoma", Font.BOLD, 18);
-        lblMon1.setFont(fontChiTiet);
-        lblMon2.setFont(fontChiTiet);
-        lblMon3.setFont(fontChiTiet);
-        lblMon4.setFont(fontChiTiet);
-        lblMon5.setFont(fontChiTiet);
-        lblSoLuong1.setFont(fontChiTiet);
-        lblSoLuong2.setFont(fontChiTiet);
-        lblSoLuong3.setFont(fontChiTiet);
-        lblSoLuong4.setFont(fontChiTiet);
-        lblSoLuong5.setFont(fontChiTiet);
-
-        pnThongKeChiTiet.add(lblMon1);
-        pnThongKeChiTiet.add(lblMon2);
-        pnThongKeChiTiet.add(lblMon3);
-        pnThongKeChiTiet.add(lblMon4);
-        pnThongKeChiTiet.add(lblMon5);
-        pnThongKeChiTiet.add(lblSoLuong1);
-        pnThongKeChiTiet.add(lblSoLuong2);
-        pnThongKeChiTiet.add(lblSoLuong3);
-        pnThongKeChiTiet.add(lblSoLuong4);
-        pnThongKeChiTiet.add(lblSoLuong5);
-
-        //========BIỂU ĐỒ CỘT=============
-//        pnChart = new TransparentPanel();
-//        pnChart.setBounds(0, 398, 1030, 441);
-//
-//        chartPanel = new ChartPanel(createChart());
-//        chartPanel.setPreferredSize(new Dimension(1030, 441));
-//
-//        pnChart.add(chartPanel);
-        //================================
-//        pnThongKeChiTiet.add(pnChart);
+//        pnThongKeChiTiet.setBackground(Color.WHITE);
+        
         pnMain.add(pnThongKeChiTiet, "2");
 
-        this.add(pnMain, BorderLayout.CENTER);
-        hienThiThongKe();
+        this.add(pnMain, BorderLayout.CENTER);          
     }
+        
 
-    private void addEvents() {
+    private void addEvents() {        
         btnView.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                hienThiThongKe();
-//                veLaiChart();
-                cardLayoutThongKe.show(pnMain, "2");
+                try {
+                    ReportViewer viewer = new ReportViewer("/home/haidang309/Downloads/doanck_java/src/Report/report1.jrxml");
+                    viewer.setVisible(true);
+                } catch (JRException ex) {
+                    Logger.getLogger(PnQuanLyThongKeGUI.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
         btnBack.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                hienThiThongKe();
+//                hienThiThongKe();
                 cardLayoutThongKe.show(pnMain, "1");
             }
         });
         cmbNam.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                hienThiThongKe();
+//                hienThiThongKe();
             }
         });
         btn_filter.addActionListener(new ActionListener() {
@@ -310,27 +247,27 @@ public class PnQuanLyThongKeGUI extends JPanel {
 
     private DecimalFormat dcf = new DecimalFormat("###,###");
 
-    private void hienThiThongKe() {
-        ThongKe thongKe = thongKeBUS.thongKe(Integer.parseInt(cmbNam.getSelectedItem() + ""));
-        lblThongKeThucDon.setText(dcf.format(thongKe.getSoLuongSP()));
-        lblThongKeKhachHang.setText(dcf.format(thongKe.getSoLuongKH()));
-        lblThongKeNhanVien.setText(dcf.format(thongKe.getSoLuongNV()));
-        lblThongKeDoanhThu.setText(dcf.format(thongKe.getTongDoanhThu()));
-//        lblDoanhThuQuy1.setText(dcf.format(thongKe.getTongThuQuy(1)));
-//        lblDoanhThuQuy2.setText(dcf.format(thongKe.getTongThuQuy(2)));
-//        lblDoanhThuQuy3.setText(dcf.format(thongKe.getTongThuQuy(3)));
-//        lblDoanhThuQuy4.setText(dcf.format(thongKe.getTongThuQuy(4)));
-//        lblTongDoanhThu.setText(dcf.format(thongKe.getTongDoanhThu()));
-        lblMon1.setText(thongKe.getTopSanPhamBanChay().get(0).getTenSP());
-        lblMon2.setText(thongKe.getTopSanPhamBanChay().get(1).getTenSP());
-        lblMon3.setText(thongKe.getTopSanPhamBanChay().get(2).getTenSP());
-        lblMon4.setText(thongKe.getTopSanPhamBanChay().get(3).getTenSP());
-        lblMon5.setText(thongKe.getTopSanPhamBanChay().get(4).getTenSP());
-        lblSoLuong1.setText("" + thongKe.getTopSanPhamBanChay().get(0).getSoLuong());
-        lblSoLuong2.setText("" + thongKe.getTopSanPhamBanChay().get(1).getSoLuong());
-        lblSoLuong3.setText("" + thongKe.getTopSanPhamBanChay().get(2).getSoLuong());
-        lblSoLuong4.setText("" + thongKe.getTopSanPhamBanChay().get(3).getSoLuong());
-        lblSoLuong5.setText("" + thongKe.getTopSanPhamBanChay().get(4).getSoLuong());
-    }
+//    private void hienThiThongKe() {
+//        ThongKe thongKe = thongKeBUS.thongKe(Integer.parseInt(cmbNam.getSelectedItem() + ""));
+//        lblThongKeThucDon.setText(dcf.format(thongKe.getSoLuongSP()));
+//        lblThongKeKhachHang.setText(dcf.format(thongKe.getSoLuongKH()));
+//        lblThongKeNhanVien.setText(dcf.format(thongKe.getSoLuongNV()));
+//        lblThongKeDoanhThu.setText(dcf.format(thongKe.getTongDoanhThu()));
+////        lblDoanhThuQuy1.setText(dcf.format(thongKe.getTongThuQuy(1)));
+////        lblDoanhThuQuy2.setText(dcf.format(thongKe.getTongThuQuy(2)));
+////        lblDoanhThuQuy3.setText(dcf.format(thongKe.getTongThuQuy(3)));
+////        lblDoanhThuQuy4.setText(dcf.format(thongKe.getTongThuQuy(4)));
+////        lblTongDoanhThu.setText(dcf.format(thongKe.getTongDoanhThu()));
+//        lblMon1.setText(thongKe.getTopSanPhamBanChay().get(0).getTenSP());
+//        lblMon2.setText(thongKe.getTopSanPhamBanChay().get(1).getTenSP());
+//        lblMon3.setText(thongKe.getTopSanPhamBanChay().get(2).getTenSP());
+//        lblMon4.setText(thongKe.getTopSanPhamBanChay().get(3).getTenSP());
+//        lblMon5.setText(thongKe.getTopSanPhamBanChay().get(4).getTenSP());
+//        lblSoLuong1.setText("" + thongKe.getTopSanPhamBanChay().get(0).getSoLuong());
+//        lblSoLuong2.setText("" + thongKe.getTopSanPhamBanChay().get(1).getSoLuong());
+//        lblSoLuong3.setText("" + thongKe.getTopSanPhamBanChay().get(2).getSoLuong());
+//        lblSoLuong4.setText("" + thongKe.getTopSanPhamBanChay().get(3).getSoLuong());
+//        lblSoLuong5.setText("" + thongKe.getTopSanPhamBanChay().get(4).getSoLuong());
+//    }
 
 }

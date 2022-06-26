@@ -1,7 +1,7 @@
 package Main;
 
 import DAO.MyConnect;
-import GUI.DangNhapGUI;
+import GUI.DangNhap;
 
 public class Main {
 
@@ -9,7 +9,7 @@ public class Main {
         new MyConnect();
 
         changLNF("Nimbus");
-        DangNhapGUI login = new DangNhapGUI();
+        DangNhap login = new DangNhap();
         login.showWindow();
     }
 
